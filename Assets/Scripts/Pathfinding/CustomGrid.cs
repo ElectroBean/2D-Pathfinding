@@ -49,15 +49,24 @@ public class CustomGrid : MonoBehaviour
                 bool Wall = false; //initialize if node is a wall or not
                 bool Floor = false; //initialize if node is a floor piece
 
-                if (Physics.CheckSphere(worldPoint, nodeRadius, wallMask)) //sphere check to determine if wall
+                if(Physics2D.OverlapCircle(worldPoint, nodeRadius / 2, wallMask)) //check for 2d colliders and set bools if found
                 {
                     Wall = true;
                 }
-                if (Physics.CheckSphere(worldPoint, nodeRadius, floorMask)) //sphere check to determine if floor 
+                if(Physics2D.OverlapCircle(worldPoint, nodeRadius / 2, floorMask)) //check for 2d colliders and set bools if found
                 {
                     Floor = true;
                 }
-                
+
+                if(Physics.CheckBox(worldPoint, new Vector3(nodeRadius, nodeRadius, 1), Quaternion.identity, floorMask))
+                {
+                    Floor = true;
+                }
+                if (Physics.CheckBox(worldPoint, new Vector3(nodeRadius, nodeRadius, 1), Quaternion.identity, wallMask))
+                {
+                    Wall = true;
+                }
+
                 grid[x, y] = new Node(Wall, Floor, worldPoint, x, y); //set grid piece at x and y to a new node with determined values and world positions
             }
         }
@@ -126,13 +135,7 @@ public class CustomGrid : MonoBehaviour
                         Gizmos.color = Color.clear;
                 }
 
-                if (FinalPath != null) //if a final path has been found
-                {
-                    if (FinalPath.Contains(node)) //if the final path contains the current node
-                        Gizmos.color = Color.red;
-                }
-
-                Gizmos.DrawCube(node.position, Vector3.one * (nodeDiameter - distance)); //draw all nodes
+                Gizmos.DrawWireCube(node.position, Vector3.one * (nodeDiameter - distance)); //draw all nodes
             }
         }
     }

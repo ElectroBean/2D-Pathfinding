@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class FollowPath : MonoBehaviour {
+public class FollowPath : MonoBehaviour
+{
 
     AStarPathfinding aStar;
     List<Node> path;
@@ -21,13 +22,13 @@ public class FollowPath : MonoBehaviour {
     }
 
     // Use this for initialization
-    void Start ()
+    void Start()
     {
         path = new List<Node>();
-	}
-	
-	// Update is called once per frame
-	void Update ()
+    }
+
+    // Update is called once per frame
+    void Update()
     {
         if (Input.GetKeyDown(whichkey))
         {
@@ -40,13 +41,14 @@ public class FollowPath : MonoBehaviour {
             }
         }
 
-        if(path.Count > 0)
-        {
-            transform.position = Vector3.Lerp(transform.position, path[0].position, moveSpeed);
-            if(Vector3.Distance(transform.position, path[0].position) < 1.0f)
+        if (path != null)
+            if (path.Count > 0)
             {
-                path.RemoveAt(0);
+                transform.position = Vector3.Lerp(transform.position, path[0].position, moveSpeed);
+                if (Vector3.Distance(transform.position, path[0].position) < 1.0f)
+                {
+                    path.RemoveAt(0);
+                }
             }
-        }
     }
 }
