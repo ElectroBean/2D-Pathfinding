@@ -19,7 +19,7 @@ public class CustomGrid : MonoBehaviour
     [SerializeField]
     [Tooltip("Distance between each node")]
     private float distance;
-    Node[,] grid;
+    public Node[,] grid;
 
     private List<Node> FinalPath;
 
@@ -27,6 +27,11 @@ public class CustomGrid : MonoBehaviour
     private int gridSizeX, gridSizeY;
 
     private Vector3 bottomLeft;
+
+    private enum Dimensions { THREE, TWO};
+
+    [SerializeField]
+    private Dimensions dimension;
 
     // Use this for initialization
     void Start()
@@ -49,24 +54,33 @@ public class CustomGrid : MonoBehaviour
                 bool Wall = false; //initialize if node is a wall or not
                 bool Floor = false; //initialize if node is a floor piece
 
-                if(Physics2D.OverlapCircle(worldPoint, nodeRadius / 2, wallMask)) //check for 2d colliders and set bools if found
-                {
-                    Wall = true;
-                }
-                if(Physics2D.OverlapCircle(worldPoint, nodeRadius / 2, floorMask)) //check for 2d colliders and set bools if found
-                {
-                    Floor = true;
-                }
 
-                if(Physics.CheckBox(worldPoint, new Vector3(nodeRadius, nodeRadius, 1), Quaternion.identity, floorMask))
+                switch (dimension) // change grid creation depending on number of dimentions wanted
                 {
-                    Floor = true;
-                }
-                if (Physics.CheckBox(worldPoint, new Vector3(nodeRadius, nodeRadius, 1), Quaternion.identity, wallMask))
-                {
-                    Wall = true;
-                }
+                    case Dimensions.THREE:
+                        if (Physics.CheckBox(worldPoint, new Vector3(float.Epsilon, float.Epsilon, 1), Quaternion.identity, floorMask))
+                        {
+                            Floor = true;
+                        }
+                        if (Physics.CheckBox(worldPoint, new Vector3(float.Epsilon, float.Epsilon, 1), Quaternion.identity, wallMask))
+                        {
+                            Wall = true;
+                        }
 
+                        break;
+                    case Dimensions.TWO:
+                        if (Physics2D.OverlapCircle(worldPoint, 0.1f, wallMask)) //check for 2d colliders and set bools if found
+                        {
+                            Wall = true;
+                        }
+                        if (Physics2D.OverlapCircle(worldPoint, 0.1f, floorMask)) //check for 2d colliders and set bools if found
+                        {
+                            Floor = true;
+                        }
+
+                        break;
+                }
+                
                 grid[x, y] = new Node(Wall, Floor, worldPoint, x, y); //set grid piece at x and y to a new node with determined values and world positions
             }
         }
@@ -107,6 +121,7 @@ public class CustomGrid : MonoBehaviour
                 if (checkX >= 0 && checkX < gridSizeX && checkY >= 0 && checkY < gridSizeY)
                 {
                     neighbouringNodes.Add(grid[checkX, checkY]); //Adds to the neighbours list.
+                    //grid[checkX, checkY].parent = currentNode;
                 }
 
             }
@@ -125,7 +140,7 @@ public class CustomGrid : MonoBehaviour
             {
                 if (node.isWall) //if it's a wall
                 {
-                    Gizmos.color = Color.yellow; 
+                    Gizmos.color = Color.yellow;
                 }
                 else
                 {
@@ -133,6 +148,15 @@ public class CustomGrid : MonoBehaviour
                         Gizmos.color = Color.green;
                     else              //if there is nothing here
                         Gizmos.color = Color.clear;
+                }
+
+                if(node.isPath)
+                {
+                    Gizmos.color = Color.red;
+                }
+                if(node.wasTested)
+                {
+                    Gizmos.color = Color.blue;
                 }
 
                 Gizmos.DrawWireCube(node.position, Vector3.one * (nodeDiameter - distance)); //draw all nodes

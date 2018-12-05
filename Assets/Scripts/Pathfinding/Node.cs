@@ -13,13 +13,17 @@ public class Node {
 
     public bool isFloor;
 
+    public bool isPath;
+
+    public bool wasTested;
+
     public Vector3 position;
 
     public Node parent; //parent for path finding
 
-    public int gCost, hCost; //G Cost and H Cost
+    public float gCost, hCost; //G Cost and H Cost
 
-    public int FCost { get { return gCost + hCost; } } //getter and setter for FCost
+    public float fCost;//getter and setter for FCost
 
     public Node(bool isWall, bool isFloor, Vector3 aPos, int aGridX, int aGridY) //constructor 
     {

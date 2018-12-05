@@ -6,6 +6,7 @@ public class FollowPath : MonoBehaviour
 {
 
     AStarPathfinding aStar;
+    AStar aStar2;
     List<Node> path;
     [SerializeField]
     [Tooltip("LayerMask of Walkable areas")]
@@ -19,6 +20,7 @@ public class FollowPath : MonoBehaviour
     private void Awake()
     {
         aStar = FindObjectOfType<AStarPathfinding>();
+        aStar2 = FindObjectOfType<AStar>();
     }
 
     // Use this for initialization
@@ -37,7 +39,7 @@ public class FollowPath : MonoBehaviour
             RaycastHit hit;
             if (Physics.Raycast(castPoint, out hit, Mathf.Infinity, hitLayers))
             {
-                path = aStar.FindPath(transform.position, hit.point);
+                path = aStar2.FindPathAStar(transform.position, hit.point);
             }
         }
 

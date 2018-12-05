@@ -26,6 +26,10 @@ public class AStarPathfinding : MonoBehaviour
 
     public List<Node> FindPath(Vector3 start, Vector3 end)
     {
+        foreach(Node ad in grid.grid)
+        {
+            ad.isPath = false;
+        }
         Node startNode = grid.NodeFromWorldPosition(start);
         Node targetNode = grid.NodeFromWorldPosition(end);
 
@@ -39,9 +43,10 @@ public class AStarPathfinding : MonoBehaviour
             Node currentNode = openList[0];
             for (int i = 1; i < openList.Count; i++)
             {
-                if(openList[i].FCost < currentNode.FCost || openList[i].FCost == currentNode.FCost && openList[i].hCost < currentNode.hCost)
+                if(openList[i].fCost < currentNode.fCost || openList[i].fCost == currentNode.fCost && openList[i].hCost < currentNode.hCost)
                 {
                     currentNode = openList[i];
+                    currentNode.wasTested = true;
                 }
             }
             openList.Remove(currentNode);
@@ -60,12 +65,13 @@ public class AStarPathfinding : MonoBehaviour
                 {
                     continue; //skip
                 }
-                int MoveCost = currentNode.gCost + GetManhattenDistance(currentNode, neighbourNode); //get f cost of neighbour
+                float MoveCost = currentNode.gCost + Vector3.Distance(currentNode.position, neighbourNode.position); //get f cost of neighbour
 
-                if(!openList.Contains(neighbourNode) || MoveCost < neighbourNode.FCost) //if openlist doesnt contain current neighbour OR the move cost is less than the neighbours FCost
+                if(!openList.Contains(neighbourNode) || MoveCost < neighbourNode.fCost) //if openlist doesnt contain current neighbour OR the move cost is less than the neighbours FCost
                 {
                     neighbourNode.gCost = MoveCost; //set gCost to fCost
-                    neighbourNode.hCost = GetManhattenDistance(neighbourNode, targetNode); //set hCost
+                    neighbourNode.hCost = Vector3.Distance(neighbourNode.position, targetNode.position); //set hCost
+                    neighbourNode.fCost = neighbourNode.gCost + neighbourNode.hCost;
                     neighbourNode.parent = currentNode; //set parent of node for retracing
 
                     if(!openList.Contains(neighbourNode)) //if neighbour is not in openlist
@@ -85,6 +91,8 @@ public class AStarPathfinding : MonoBehaviour
 
         while(currentNode != start) //while current node isn't the start node
         {
+            currentNode.isPath = true;
+            currentNode.wasTested = false;
             finalPath.Add(currentNode); //add current node to final path list
             currentNode = currentNode.parent; //set new current node to the parent of current node
         }
@@ -93,10 +101,10 @@ public class AStarPathfinding : MonoBehaviour
         return finalPath; //return final path
     }
 
-    public int GetManhattenDistance(Node currentNode, Node neighbourNode) //returns manhattan distance for pathfinding
+    public float GetManhattenDistance(Node currentNode, Node neighbourNode) //returns manhattan distance for pathfinding
     {
-        int x = Mathf.Abs(currentNode.gridX - neighbourNode.gridX);
-        int y = Mathf.Abs(currentNode.gridY - neighbourNode.gridY);
+        float x = currentNode.gridX - neighbourNode.gridX;
+        float y = currentNode.gridY - neighbourNode.gridY;
 
         return x + y;
     }
