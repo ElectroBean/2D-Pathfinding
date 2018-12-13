@@ -15,6 +15,8 @@ public class Node {
 
     public bool isPath;
 
+    public bool isStarOrEnd;
+
     public bool wasTested;
 
     public Vector3 position;

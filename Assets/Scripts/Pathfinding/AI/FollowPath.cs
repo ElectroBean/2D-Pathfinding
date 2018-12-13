@@ -32,14 +32,14 @@ public class FollowPath : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (Input.GetKeyDown(whichkey))
+        if (Input.GetKey(whichkey))
         {
             Vector3 mouse = Input.mousePosition;
             Ray castPoint = Camera.main.ScreenPointToRay(mouse);
             RaycastHit hit;
             if (Physics.Raycast(castPoint, out hit, Mathf.Infinity, hitLayers))
             {
-                path = aStar2.FindPathAStar(transform.position, hit.point);
+                path = aStar2.FindPath(transform.position, hit.point);
             }
         }
 

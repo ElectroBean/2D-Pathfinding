@@ -28,7 +28,7 @@ public class CustomGrid : MonoBehaviour
 
     private Vector3 bottomLeft;
 
-    private enum Dimensions { THREE, TWO};
+    private enum Dimensions { THREE, TWO };
 
     [SerializeField]
     private Dimensions dimension;
@@ -42,7 +42,7 @@ public class CustomGrid : MonoBehaviour
         CreateGrid(); //Create the grid
     }
 
-    void CreateGrid()
+    public void CreateGrid()
     {
         grid = new Node[gridSizeX, gridSizeY]; //initialize new grid
         bottomLeft = transform.position - Vector3.up * (gridWorldSize.y / 2) - Vector3.right * (gridWorldSize.x / 2); //set bottomleft vector
@@ -80,24 +80,34 @@ public class CustomGrid : MonoBehaviour
 
                         break;
                 }
-                
+
                 grid[x, y] = new Node(Wall, Floor, worldPoint, x, y); //set grid piece at x and y to a new node with determined values and world positions
             }
         }
     }
 
+    //old way of getting closest node doesnt work properly
     public Node NodeFromWorldPosition(Vector3 worldPos)
     {
-        float xPoint = ((worldPos.x + gridWorldSize.x / 2) / gridWorldSize.x); //get world point relative to grid size
-        float yPoint = ((worldPos.y + gridWorldSize.y / 2) / gridWorldSize.y); //''
-
-        xPoint = Mathf.Clamp01(xPoint); //clamp relative points between 0 and 1
-        yPoint = Mathf.Clamp01(yPoint); //clamp relative points between 0 and 1
-
-        int x = Mathf.RoundToInt((gridSizeX - 1) * xPoint); //get grid position 
-        int y = Mathf.RoundToInt((gridSizeY - 1) * yPoint); //get grid position 
-
-        return grid[x, y];
+        //float xPoint = ((worldPos.x + gridWorldSize.x / 2) / gridWorldSize.x); //get world point relative to grid size
+        //float yPoint = ((worldPos.y + gridWorldSize.y / 2) / gridWorldSize.y); //''
+        //
+        //xPoint = Mathf.Clamp01(xPoint); //clamp relative points between 0 and 1
+        //yPoint = Mathf.Clamp01(yPoint); //clamp relative points between 0 and 1
+        //
+        //int x = Mathf.RoundToInt((gridSizeX - 1) * xPoint); //get grid position 
+        //int y = Mathf.RoundToInt((gridSizeY - 1) * yPoint); //get grid position 
+        //
+        //return grid[x, y];
+        Node closestNode = grid[0, 0];
+        foreach(Node ca in grid)
+        {
+            if(Vector2.Distance(worldPos, ca.position) < Vector2.Distance(worldPos, closestNode.position))
+            {
+                closestNode = ca;
+            }
+        }
+        return closestNode;
     }
 
     public List<Node> GetNeighbouringNodes(Node currentNode)
@@ -138,26 +148,35 @@ public class CustomGrid : MonoBehaviour
         {
             foreach (Node node in grid) //for each node in the grid
             {
-                if (node.isWall) //if it's a wall
+                if (node.isStarOrEnd)
                 {
-                    Gizmos.color = Color.yellow;
+                    Gizmos.color = Color.black;
                 }
                 else
                 {
-                    if (node.isFloor) //if it's a floor piece
-                        Gizmos.color = Color.green;
-                    else              //if there is nothing here
-                        Gizmos.color = Color.clear;
+                    if (node.isWall) //if it's a wall
+                    {
+                        Gizmos.color = Color.yellow;
+                    }
+                    else
+                    {
+                        if (node.isFloor) //if it's a floor piece
+                            Gizmos.color = Color.green;
+                        else              //if there is nothing here
+                            Gizmos.color = Color.clear;
+                    }
+
                 }
 
-                if(node.isPath)
-                {
-                    Gizmos.color = Color.red;
-                }
-                if(node.wasTested)
-                {
-                    Gizmos.color = Color.blue;
-                }
+
+                //if(node.isPath)
+                //{
+                //    Gizmos.color = Color.red;
+                //}
+                //if(node.wasTested)
+                //{
+                //    Gizmos.color = Color.blue;
+                //}
 
                 Gizmos.DrawWireCube(node.position, Vector3.one * (nodeDiameter - distance)); //draw all nodes
             }
